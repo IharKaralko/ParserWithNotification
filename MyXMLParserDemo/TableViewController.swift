@@ -90,7 +90,7 @@ class TableViewController: UITableViewController {
             return
         }
         
-       // feeds = [Feed]()
+        feeds = [Feed]()
         
         for feed in feeds {
             
