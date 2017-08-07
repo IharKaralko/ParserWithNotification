@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MyXMLParserDemo/TableViewController.swift"
+            timestampString = "522658127.020677"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "112"
+            endingLineNumber = "112"
+            landmarkName = "saveAllFeedsCoreData()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "MyXMLParserDemo.TableViewController.saveAllFeedsCoreData () -&gt; ()"
+                  moduleName = "MyXMLParserDemo"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/ihar_karalko/Desktop/ExampleWithCoreData/MyXMLParserDemo/TableViewController.swift"
+                  timestampString = "522658231.459512"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "112"
+                  endingLineNumber = "112"
+                  offsetFromSymbolStart = "3050">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "MyXMLParserDemo.TableViewController.saveAllFeedsCoreData () -&gt; ()"
+                  moduleName = "MyXMLParserDemo"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/ihar_karalko/Desktop/ExampleWithCoreData/MyXMLParserDemo/TableViewController.swift"
+                  timestampString = "522658231.461833"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "112"
+                  endingLineNumber = "112"
+                  offsetFromSymbolStart = "3300">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
