@@ -72,25 +72,25 @@ class TableViewController: UITableViewController {
             print(error.localizedDescription)
         }
         
-        //                        for weed in feedsCoreData{
-        //                            context.delete(weed)
-        //                            do {
-        //                                try context.save()
-        //                                //foods.append(taskObject)
-        //                                print("delete! Good Igor!")
-        //
-        //                            } catch {
-        //                                print(error.localizedDescription)
-        //                            }
-        //                        }
-        //
+//                                for weed in feedsCoreData{
+//                                    context.delete(weed)
+//                                    do {
+//                                        try context.save()
+//                                        //foods.append(taskObject)
+//                                        print("delete! Good Igor!")
+//        
+//                                    } catch {
+//                                        print(error.localizedDescription)
+//                                    }
+//                                }
+//        
         
-        guard feeds.count != 0 else{
-            print("Offline!")
-            return
-        }
+//        guard feeds.count != 0 else{
+//            print("Offline!")
+//            return
+//        }
         
-        feeds = [Feed]()
+        //feeds = [Feed]()
         
         for feed in feeds {
             
@@ -120,8 +120,8 @@ class TableViewController: UITableViewController {
             do {
                 try context.save()
                 
-                //self.feedsCoreData.append(taskObject)
-                self.feedsCoreData.insert(taskObject, at: i)
+                self.feedsCoreData.append(taskObject)
+                //self.feedsCoreData.insert(taskObject, at: i)
                 print("Saved! Good Job!")
                 
             } catch {
@@ -193,8 +193,10 @@ class TableViewController: UITableViewController {
                 
                 let dvc = segue.destination as! ViewController
                 dvc.title = feedsCoreData[indexPath.row].title
-                dvc.feed = self.feedsCoreData[indexPath.row]
-            }
+                dvc.detailFeed.date = self.feedsCoreData[indexPath.row].date
+                dvc.detailFeed.title = self.feedsCoreData[indexPath.row].title
+                dvc.detailFeed.descriptionFeed = self.feedsCoreData[indexPath.row].descriptionFeed
+                 dvc.detailFeed.imageNSData = self.feedsCoreData[indexPath.row].imageUrl            }
         }
     }
 }

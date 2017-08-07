@@ -8,6 +8,18 @@
 
 import UIKit
 import Foundation
+import CoreData
+
+class DetailFeed {
+    
+    var title   :  String?
+    var date    :  String?
+    var descriptionFeed : String?
+    var imageNSData : NSData?
+   
+}
+
+
 
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
@@ -15,7 +27,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var imageViewNews: UIImageView!
     var stringURL: String?
-    var feed: FeedCoreData = FeedCoreData()
+    
+    var detailFeed = DetailFeed()
+    //var feed: FeedCoreData = FeedCoreData()
     
     
     override func viewWillAppear(_ animated: Bool) {
@@ -27,18 +41,19 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        
+        
         tableView.estimatedRowHeight = 100
         tableView.rowHeight = UITableViewAutomaticDimension
         
-         let imageFeed = UIImage(data: feed.imageUrl! as Data)
+         let imageFeed = UIImage(data: detailFeed.imageNSData! as Data)
         
         imageViewNews.image = imageFeed
         
            tableView.backgroundColor = #colorLiteral(red: 0.5843137503, green: 0.8235294223, blue: 0.4196078479, alpha: 1)
            tableView.tableFooterView = UIView(frame: CGRect.zero)
         
-        
-    }
+           }
 
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -55,15 +70,15 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             let cellOne = tableView.dequeueReusableCell(withIdentifier: "cellOne", for: indexPath) as! CellOneTableViewCell
             
             
-            cellOne.titleLabel.text = feed.title
-            cellOne.pubDateLabel.text = feed.date
+            cellOne.titleLabel.text = detailFeed.title
+            cellOne.pubDateLabel.text = detailFeed.date
             
             return cellOne
         } else {
             
             let cellTwo = tableView.dequeueReusableCell(withIdentifier: "cellTwo", for: indexPath) as! CellTwoTableViewCell
             
-            let fullDescriptionArr = feed.descriptionFeed?.components(separatedBy: "/>")
+            let fullDescriptionArr = detailFeed.descriptionFeed?.components(separatedBy: "/>")
             let onlyText = fullDescriptionArr?[1].components(separatedBy: "<")
             
             cellTwo.descriptionLabel.text = onlyText?[0]
