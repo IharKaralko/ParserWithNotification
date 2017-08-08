@@ -3,7 +3,7 @@
     <entity name="FeedCoreData" representedClassName="FeedCoreData" syncable="YES">
         <attribute name="date" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="descriptionFeed" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="imageUrl" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
+        <attribute name="imageNSData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>

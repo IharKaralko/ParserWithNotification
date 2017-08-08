@@ -19,6 +19,6 @@ extension FeedCoreData {
     @NSManaged public var title: String?
     @NSManaged public var date: String?
     @NSManaged public var descriptionFeed: String?
-    @NSManaged public var imageUrl: NSData?
+    @NSManaged public var imageNSData: NSData?
 
 }

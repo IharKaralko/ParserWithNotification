@@ -23,6 +23,7 @@ class TableViewController: UITableViewController {
     
     var feedsCoreData = [FeedCoreData]()
     
+    var ddd:  NSData?
     var url = URL(string: "https://news.tut.by/rss/sport.rss")
     var feeds = [Feed]()
     var eName = String()
@@ -85,21 +86,26 @@ class TableViewController: UITableViewController {
                 continue
             }
             
+//                          let queue = DispatchQueue.global(qos: .utility)
+//                            queue.async{
             taskObject.title = feed.title
             taskObject.date = feed.date
             taskObject.descriptionFeed = feed.descriptionFeed
             
             let urlString = feed.imageUrl
             if let imageUrl = URL(string: urlString){
-                if let data = try? Data(contentsOf: imageUrl){
+                
+//                let queue = DispatchQueue.global(qos: .utility)
+//                queue.async{
+                    if let data = try? Data(contentsOf: imageUrl){
+                
+               
+                    taskObject.imageNSData = data as NSData?
+                    }
                     
-                   // let ddd = data as Data?
-                    taskObject.imageUrl = data as NSData?
-                }
-            }
+                  }
             
-            
-            do {
+                do {
                 try context.save()
                 
                 //self.feedsCoreData.append(taskObject)
@@ -130,7 +136,7 @@ class TableViewController: UITableViewController {
         
     }
     
-    var h = 0
+   // var h = 0
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! CustomTableViewCell
@@ -145,7 +151,7 @@ class TableViewController: UITableViewController {
         
         
 
-        let imageFeed = UIImage(data: feed.imageUrl! as Data)
+        let imageFeed = UIImage(data: feed.imageNSData! as Data)
         
         if let image = cache.object(forKey: indexPath.row as AnyObject) as? UIImage {
             // если объект есть, то подставляем в изображение
@@ -155,7 +161,7 @@ class TableViewController: UITableViewController {
             cell.thumbnailImageView.clipsToBounds = true
         } else {
             
-            DispatchQueue.main.async(execute: {
+           DispatchQueue.main.async(execute: {
                  //проверка видна ли строка
                 let updateCell = tableView.cellForRow(at: indexPath) as? CustomTableViewCell
                 
@@ -167,7 +173,7 @@ class TableViewController: UITableViewController {
                 // кешируем изображение
                 self.cache.setObject(imageFeed!, forKey: indexPath.row as AnyObject)
                 
-            })
+           })
         }
         
        // }
@@ -185,7 +191,7 @@ class TableViewController: UITableViewController {
                 dvc.detailFeed.date = self.feedsCoreData[indexPath.row].date
                 dvc.detailFeed.title = self.feedsCoreData[indexPath.row].title
                 dvc.detailFeed.descriptionFeed = self.feedsCoreData[indexPath.row].descriptionFeed
-                dvc.detailFeed.imageNSData = self.feedsCoreData[indexPath.row].imageUrl
+                dvc.detailFeed.imageNSData = self.feedsCoreData[indexPath.row].imageNSData
             }
         }
     }
