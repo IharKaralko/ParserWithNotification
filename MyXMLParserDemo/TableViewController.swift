@@ -23,7 +23,7 @@ class TableViewController: UITableViewController {
     
     var feedsCoreData = [FeedCoreData]()
     
-    var ddd:  NSData?
+   
     var url = URL(string: "https://news.tut.by/rss/sport.rss")
     var feeds = [Feed]()
     var eName = String()
@@ -33,7 +33,7 @@ class TableViewController: UITableViewController {
     var feedLink = String()
     var feedDescription = String()
     
-    var cache = NSCache<AnyObject, AnyObject>()
+    //var cache = NSCache<AnyObject, AnyObject>()
     
     var insideItem = false
     
@@ -94,7 +94,7 @@ class TableViewController: UITableViewController {
             
             let urlString = feed.imageUrl
             if let imageUrl = URL(string: urlString){
-                
+//                
 //                let queue = DispatchQueue.global(qos: .utility)
 //                queue.async{
                     if let data = try? Data(contentsOf: imageUrl){
@@ -102,7 +102,7 @@ class TableViewController: UITableViewController {
                
                     taskObject.imageNSData = data as NSData?
                     }
-                    
+               // }
                   }
             
                 do {
@@ -153,14 +153,14 @@ class TableViewController: UITableViewController {
 
         let imageFeed = UIImage(data: feed.imageNSData! as Data)
         
-        if let image = cache.object(forKey: indexPath.row as AnyObject) as? UIImage {
-            // если объект есть, то подставляем в изображение
-            cell.thumbnailImageView?.image = image
-            
-            cell.thumbnailImageView.layer.cornerRadius = 52.5
-            cell.thumbnailImageView.clipsToBounds = true
-        } else {
-            
+//        if let image = cache.object(forKey: indexPath.row as AnyObject) as? UIImage {
+//            // если объект есть, то подставляем в изображение
+//            cell.thumbnailImageView?.image = image
+//            
+//            cell.thumbnailImageView.layer.cornerRadius = 52.5
+//            cell.thumbnailImageView.clipsToBounds = true
+//        } else {
+        
            DispatchQueue.main.async(execute: {
                  //проверка видна ли строка
                 let updateCell = tableView.cellForRow(at: indexPath) as? CustomTableViewCell
@@ -170,11 +170,11 @@ class TableViewController: UITableViewController {
                 updateCell?.thumbnailImageView.layer.cornerRadius = 52.5
                 updateCell?.thumbnailImageView.clipsToBounds = true
                 
-                // кешируем изображение
-                self.cache.setObject(imageFeed!, forKey: indexPath.row as AnyObject)
-                
+//                // кешируем изображение
+//                self.cache.setObject(imageFeed!, forKey: indexPath.row as AnyObject)
+            
            })
-        }
+       // }
         
        // }
         return cell
