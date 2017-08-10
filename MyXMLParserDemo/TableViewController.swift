@@ -22,8 +22,8 @@ class Feed {
 class TableViewController: UITableViewController {
     
     var feedsCoreData = [FeedCoreData]()
+    var feedsCoreDataSort = [FeedCoreData]()
     
-   
     var url = URL(string: "https://news.tut.by/rss/sport.rss")
     var feeds = [Feed]()
     var eName = String()
@@ -65,6 +65,9 @@ class TableViewController: UITableViewController {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let context = appDelegate.persistentContainer.viewContext
         
+        let privateMOC = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        privateMOC.parent = context
+        
         let fetchRequest: NSFetchRequest<FeedCoreData> = FeedCoreData.fetchRequest()
         
         do {
@@ -73,7 +76,7 @@ class TableViewController: UITableViewController {
             print(error.localizedDescription)
         }
         
-        
+       // feedsCoreDataSort = feedsCoreData.sorted{ $0.date! < $1.date! }
         
         for feed in feeds {
             
@@ -88,36 +91,66 @@ class TableViewController: UITableViewController {
             
 //                          let queue = DispatchQueue.global(qos: .utility)
 //                            queue.async{
-            taskObject.title = feed.title
-            taskObject.date = feed.date
-            taskObject.descriptionFeed = feed.descriptionFeed
+//            taskObject.title = feed.title
+//            taskObject.date = feed.date
+//            taskObject.descriptionFeed = feed.descriptionFeed
             
-            let urlString = feed.imageUrl
-            if let imageUrl = URL(string: urlString){
-//                
-//                let queue = DispatchQueue.global(qos: .utility)
-//                queue.async{
-                    if let data = try? Data(contentsOf: imageUrl){
+            privateMOC.perform {
+                taskObject.title = feed.title
+                taskObject.date = feed.date
+                taskObject.descriptionFeed = feed.descriptionFeed
                 
-               
-                    taskObject.imageNSData = data as NSData?
-                    }
-               // }
-                  }
-            
+                let urlString = feed.imageUrl
+                 let imageUrl = URL(string: urlString)
+                 let data = try? Data(contentsOf: imageUrl!)
+                
+                    
+                taskObject.imageNSData = data as NSData?
+                 print("Saved! Good Job!")
+                
                 do {
-                try context.save()
-                
-                //self.feedsCoreData.append(taskObject)
-                self.feedsCoreData.insert(taskObject, at: i)
-                i += 1
-                print("Saved! Good Job!")
-                
-            } catch {
-                print(error.localizedDescription)
+                    try privateMOC.save()
+                    context.performAndWait {
+                        do {
+                            try context.save()
+                           
+                        } catch {
+                            fatalError("Failure to save context: \(error)")
+                        }
+                    }
+                } catch {
+                    fatalError("Failure to save context: \(error)")
+                }
             }
             
             
+            
+//            let urlString = feed.imageUrl
+//            if let imageUrl = URL(string: urlString){
+////                
+////                let queue = DispatchQueue.global(qos: .utility)
+////                queue.async{
+//                    if let data = try? Data(contentsOf: imageUrl){
+//                
+//               
+//                    taskObject.imageNSData = data as NSData?
+//                    }
+//               // }
+//                  }
+//            
+//                do {
+//                try context.save()
+//                
+//                //self.feedsCoreData.append(taskObject)
+//                self.feedsCoreData.insert(taskObject, at: i)
+//                i += 1
+//                print("Saved! Good Job!")
+//                
+//            } catch {
+//                print(error.localizedDescription)
+//            }
+//            
+        
         }
         
         
@@ -142,7 +175,10 @@ class TableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! CustomTableViewCell
         
         
-      let feed = feedsCoreData[indexPath.row]
+        feedsCoreDataSort = feedsCoreData.sorted{ $0.date! < $1.date! }
+        
+        
+      let feed = feedsCoreDataSort[indexPath.row]
        
 
         
@@ -249,7 +285,8 @@ extension TableViewController: XMLParserDelegate{
         
         if elementName == "item"{
             let feed = Feed()
-            feed.date = feedPubDate
+            
+            feed.date =  feedPubDate
             feed.title = feedTitle
             feed.imageUrl = feedImageUrl
             feed.link = feedLink
