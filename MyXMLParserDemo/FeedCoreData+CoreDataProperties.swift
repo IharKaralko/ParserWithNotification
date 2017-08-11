@@ -16,6 +16,7 @@ extension FeedCoreData {
         return NSFetchRequest<FeedCoreData>(entityName: "FeedCoreData")
     }
 
+    @NSManaged public var dateDate: Date?
     @NSManaged public var title: String?
     @NSManaged public var date: String?
     @NSManaged public var descriptionFeed: String?

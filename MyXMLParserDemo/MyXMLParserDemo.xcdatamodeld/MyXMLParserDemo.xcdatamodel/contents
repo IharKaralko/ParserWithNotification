@@ -2,11 +2,12 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="12141" systemVersion="16F73" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="FeedCoreData" representedClassName="FeedCoreData" syncable="YES">
         <attribute name="date" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="dateDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="descriptionFeed" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="imageNSData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="FeedCoreData" positionX="-63" positionY="-18" width="128" height="105"/>
+        <element name="FeedCoreData" positionX="-63" positionY="-18" width="128" height="120"/>
     </elements>
 </model>

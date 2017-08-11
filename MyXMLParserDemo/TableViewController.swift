@@ -11,7 +11,7 @@ import CoreData
 
 
 class Feed {
-    
+    var dateDate: Date?
     var title    = String()
     var date     = String()
     var imageUrl = String()
@@ -99,6 +99,7 @@ class TableViewController: UITableViewController {
                 taskObject.title = feed.title
                 taskObject.date = feed.date
                 taskObject.descriptionFeed = feed.descriptionFeed
+                taskObject.dateDate = feed.dateDate
                 
                 let urlString = feed.imageUrl
                  let imageUrl = URL(string: urlString)
@@ -165,7 +166,11 @@ class TableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return  feedsCoreData.count
+        if feeds.count == 0 {
+            
+            return  feedsCoreData.count}
+        else{
+            return feeds.count}
         
     }
     
@@ -175,18 +180,21 @@ class TableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! CustomTableViewCell
         
         
-        feedsCoreDataSort = feedsCoreData.sorted{ $0.date! < $1.date! }
+   //     feedsCoreDataSort = feedsCoreData.sorted{ $0.dateDate! < $1.dateDate! }
         
-        
-      let feed = feedsCoreDataSort[indexPath.row]
+      feeds = [Feed]()
+        if feeds.count == 0 {
+          
+       feedsCoreDataSort = feedsCoreData.sorted{ $0.dateDate! < $1.dateDate! }
+     //  feedsCoreDataSort = feedsCoreData.sorted{ $0.date! < $1.date! }
+            let feed = feedsCoreDataSort[indexPath.row]
        
 
         
             cell.titleLabel.text = feed.title
         cell.pubDateLabel.text = feed.date
-        
-        
-
+         
+          
         let imageFeed = UIImage(data: feed.imageNSData! as Data)
         
 //        if let image = cache.object(forKey: indexPath.row as AnyObject) as? UIImage {
@@ -214,7 +222,51 @@ class TableViewController: UITableViewController {
         
        // }
         return cell
-        
+        }
+        else{
+            let feed = feeds[indexPath.row]
+            
+            
+//            let queue = DispatchQueue.global(qos: .utility)
+//                           queue.async{
+            
+            cell.titleLabel.text = feed.title
+            cell.pubDateLabel.text = feed.date
+            
+            let urlString = feed.imageUrl
+            let imageUrl = URL(string: urlString)
+            let data = try? Data(contentsOf: imageUrl!)
+            
+            
+          //  taskObject.imageNSData = data as NSData?
+            DispatchQueue.main.async(execute: {
+                let imageFeed = UIImage(data: data! as Data)
+            
+            //        if let image = cache.object(forKey: indexPath.row as AnyObject) as? UIImage {
+            //            // если объект есть, то подставляем в изображение
+            //            cell.thumbnailImageView?.image = image
+            //
+            //            cell.thumbnailImageView.layer.cornerRadius = 52.5
+            //            cell.thumbnailImageView.clipsToBounds = true
+            //        } else {
+            
+         //   DispatchQueue.main.async(execute: {
+                //проверка видна ли строка
+                let updateCell = tableView.cellForRow(at: indexPath) as? CustomTableViewCell
+                
+                updateCell?.thumbnailImageView.image = imageFeed
+                
+                updateCell?.thumbnailImageView.layer.cornerRadius = 52.5
+                updateCell?.thumbnailImageView.clipsToBounds = true
+                
+                //                // кешируем изображение
+                //                self.cache.setObject(imageFeed!, forKey: indexPath.row as AnyObject)
+                
+            })
+           // }
+            
+            return cell
+        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -224,10 +276,10 @@ class TableViewController: UITableViewController {
                 
                 let dvc = segue.destination as! ViewController
                 dvc.title = feedsCoreData[indexPath.row].title
-                dvc.detailFeed.date = self.feedsCoreData[indexPath.row].date
-                dvc.detailFeed.title = self.feedsCoreData[indexPath.row].title
-                dvc.detailFeed.descriptionFeed = self.feedsCoreData[indexPath.row].descriptionFeed
-                dvc.detailFeed.imageNSData = self.feedsCoreData[indexPath.row].imageNSData
+                dvc.detailFeed.date = self.feedsCoreDataSort[indexPath.row].date
+                dvc.detailFeed.title = self.feedsCoreDataSort[indexPath.row].title
+                dvc.detailFeed.descriptionFeed = self.feedsCoreDataSort[indexPath.row].descriptionFeed
+                dvc.detailFeed.imageNSData = self.feedsCoreDataSort[indexPath.row].imageNSData
             }
         }
     }
@@ -287,6 +339,17 @@ extension TableViewController: XMLParserDelegate{
             let feed = Feed()
             
             feed.date =  feedPubDate
+            
+//            let dateFormatter = DateFormatter()
+//            dateFormatter.dateFormat = "EEE, dd MMM yyyy hh:mm:ss +zzzz" //Your date format
+//            dateFormatter.timeZone = TimeZone(abbreviation: "GMT+0:00") //Current time zone
+//            feed.dateDate = dateFormatter.date(from: feedPubDate) //according to date format your date string
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "EEE, dd MMM yyyy hh:mm:ss +zzzz"
+            dateFormatter.locale = Locale.init(identifier: "en_GB")
+            feed.dateDate = dateFormatter.date(from: feedPubDate)
+            
+            
             feed.title = feedTitle
             feed.imageUrl = feedImageUrl
             feed.link = feedLink
