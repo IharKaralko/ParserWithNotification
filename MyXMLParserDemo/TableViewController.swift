@@ -33,7 +33,7 @@ class TableViewController: UITableViewController {
     var feedLink = String()
     var feedDescription = String()
     
-    //var cache = NSCache<AnyObject, AnyObject>()
+    var cache = NSCache<AnyObject, AnyObject>()
     
     var insideItem = false
     
@@ -60,7 +60,6 @@ class TableViewController: UITableViewController {
     }
     
     func saveAllFeedsCoreData() {
-        var i = 0
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let context = appDelegate.persistentContainer.viewContext
@@ -76,7 +75,6 @@ class TableViewController: UITableViewController {
             print(error.localizedDescription)
         }
         
-       // feedsCoreDataSort = feedsCoreData.sorted{ $0.date! < $1.date! }
         
         for feed in feeds {
             
@@ -85,36 +83,29 @@ class TableViewController: UITableViewController {
             
             
             if feedsCoreData.contains(where: { $0.title  == feed.title && $0.date == feed.date}) {
-                //print("yes")
                 continue
             }
             
-//                          let queue = DispatchQueue.global(qos: .utility)
-//                            queue.async{
-//            taskObject.title = feed.title
-//            taskObject.date = feed.date
-//            taskObject.descriptionFeed = feed.descriptionFeed
+            taskObject.title = feed.title
+            taskObject.date = feed.date
+            taskObject.descriptionFeed = feed.descriptionFeed
+            taskObject.dateDate = feed.dateDate as NSDate?
             
             privateMOC.perform {
-                taskObject.title = feed.title
-                taskObject.date = feed.date
-                taskObject.descriptionFeed = feed.descriptionFeed
-                taskObject.dateDate = feed.dateDate
-                
                 let urlString = feed.imageUrl
-                 let imageUrl = URL(string: urlString)
-                 let data = try? Data(contentsOf: imageUrl!)
+                let imageUrl = URL(string: urlString)
+                let data = try? Data(contentsOf: imageUrl!)
                 
-                    
+                
                 taskObject.imageNSData = data as NSData?
-                 print("Saved! Good Job!")
+                print("Saved! Good Job!")
                 
                 do {
                     try privateMOC.save()
                     context.performAndWait {
                         do {
                             try context.save()
-                           
+                            
                         } catch {
                             fatalError("Failure to save context: \(error)")
                         }
@@ -123,40 +114,12 @@ class TableViewController: UITableViewController {
                     fatalError("Failure to save context: \(error)")
                 }
             }
-            
-            
-            
-//            let urlString = feed.imageUrl
-//            if let imageUrl = URL(string: urlString){
-////                
-////                let queue = DispatchQueue.global(qos: .utility)
-////                queue.async{
-//                    if let data = try? Data(contentsOf: imageUrl){
-//                
-//               
-//                    taskObject.imageNSData = data as NSData?
-//                    }
-//               // }
-//                  }
-//            
-//                do {
-//                try context.save()
-//                
-//                //self.feedsCoreData.append(taskObject)
-//                self.feedsCoreData.insert(taskObject, at: i)
-//                i += 1
-//                print("Saved! Good Job!")
-//                
-//            } catch {
-//                print(error.localizedDescription)
-//            }
-//            
+            feedsCoreData.append(taskObject)
+        }
         
         }
         
         
-    }
-    
     // MARK: - Table view data source
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -167,104 +130,98 @@ class TableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         if feeds.count == 0 {
-            
-            return  feedsCoreData.count}
+            return  feedsCoreData.count
+        }
         else{
-            return feeds.count}
-        
+            return feeds.count
+        }
     }
     
-   // var h = 0
-    
+   
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! CustomTableViewCell
         
         
-   //     feedsCoreDataSort = feedsCoreData.sorted{ $0.dateDate! < $1.dateDate! }
-        
-      feeds = [Feed]()
+     feeds = [Feed]()
         if feeds.count == 0 {
-          
-       feedsCoreDataSort = feedsCoreData.sorted{ $0.dateDate! < $1.dateDate! }
-     //  feedsCoreDataSort = feedsCoreData.sorted{ $0.date! < $1.date! }
+            
+            feedsCoreDataSort = feedsCoreData.sorted{ ($0.dateDate as Date?)! > ($1.dateDate as Date?)! }
+            
             let feed = feedsCoreDataSort[indexPath.row]
-       
-
-        
+            
             cell.titleLabel.text = feed.title
-        cell.pubDateLabel.text = feed.date
-         
-          
-        let imageFeed = UIImage(data: feed.imageNSData! as Data)
-        
-//        if let image = cache.object(forKey: indexPath.row as AnyObject) as? UIImage {
-//            // если объект есть, то подставляем в изображение
-//            cell.thumbnailImageView?.image = image
-//            
-//            cell.thumbnailImageView.layer.cornerRadius = 52.5
-//            cell.thumbnailImageView.clipsToBounds = true
-//        } else {
-        
-           DispatchQueue.main.async(execute: {
-                 //проверка видна ли строка
-                let updateCell = tableView.cellForRow(at: indexPath) as? CustomTableViewCell
-                
-                updateCell?.thumbnailImageView.image = imageFeed
-                
-                updateCell?.thumbnailImageView.layer.cornerRadius = 52.5
-                updateCell?.thumbnailImageView.clipsToBounds = true
-                
-//                // кешируем изображение
-//                self.cache.setObject(imageFeed!, forKey: indexPath.row as AnyObject)
+            cell.pubDateLabel.text = feed.date
             
-           })
-       // }
-        
-       // }
-        return cell
+            let queue = DispatchQueue.global(qos: .utility)
+            queue.async{
+            let imageFeed = UIImage(data: feed.imageNSData! as Data)
+            
+            if let image = self.cache.object(forKey: indexPath.row as AnyObject) as? UIImage {
+                // если объект есть, то подставляем в изображение
+               // print("Yes")
+                cell.thumbnailImageView?.image = image
+                
+                cell.thumbnailImageView.layer.cornerRadius = 52.5
+                cell.thumbnailImageView.clipsToBounds = true
+            } else {
+            
+               DispatchQueue.main.async(execute: {
+                    //проверка видна ли строка
+                    let updateCell = tableView.cellForRow(at: indexPath) as? CustomTableViewCell
+                    
+                    updateCell?.thumbnailImageView.image = imageFeed
+                    
+                    updateCell?.thumbnailImageView.layer.cornerRadius = 52.5
+                    updateCell?.thumbnailImageView.clipsToBounds = true
+                    
+                    // кешируем изображение
+                    self.cache.setObject(imageFeed!, forKey: indexPath.row as AnyObject)
+                })
+           }
+            }
+            return cell
         }
-        else{
+        else {
             let feed = feeds[indexPath.row]
-            
-            
-//            let queue = DispatchQueue.global(qos: .utility)
-//                           queue.async{
-            
+
             cell.titleLabel.text = feed.title
             cell.pubDateLabel.text = feed.date
             
             let urlString = feed.imageUrl
             let imageUrl = URL(string: urlString)
+            
+            URLSession.shared.downloadTask(with: imageUrl!, completionHandler: { (url, response, error) in
+                   
             let data = try? Data(contentsOf: imageUrl!)
             
             
-          //  taskObject.imageNSData = data as NSData?
-            DispatchQueue.main.async(execute: {
+                DispatchQueue.main.async(execute: {
                 let imageFeed = UIImage(data: data! as Data)
             
-            //        if let image = cache.object(forKey: indexPath.row as AnyObject) as? UIImage {
-            //            // если объект есть, то подставляем в изображение
-            //            cell.thumbnailImageView?.image = image
-            //
-            //            cell.thumbnailImageView.layer.cornerRadius = 52.5
-            //            cell.thumbnailImageView.clipsToBounds = true
-            //        } else {
+                    if let image = self.cache.object(forKey: indexPath.row as AnyObject) as? UIImage {
+                       // print("oooo")
+                      
+                        
+                        cell.thumbnailImageView?.image = image
             
-         //   DispatchQueue.main.async(execute: {
-                //проверка видна ли строка
-                let updateCell = tableView.cellForRow(at: indexPath) as? CustomTableViewCell
+                        cell.thumbnailImageView.layer.cornerRadius = 52.5
+                        cell.thumbnailImageView.clipsToBounds = true
+                    } else {
+            
+                        let updateCell = tableView.cellForRow(at: indexPath) as? CustomTableViewCell
                 
                 updateCell?.thumbnailImageView.image = imageFeed
                 
                 updateCell?.thumbnailImageView.layer.cornerRadius = 52.5
                 updateCell?.thumbnailImageView.clipsToBounds = true
                 
-                //                // кешируем изображение
-                //                self.cache.setObject(imageFeed!, forKey: indexPath.row as AnyObject)
-                
+                        
+                             self.cache.setObject(imageFeed!, forKey: indexPath.row as AnyObject)
+                    }
             })
            // }
-            
+                 }).resume()
+                    
             return cell
         }
     }
@@ -273,17 +230,29 @@ class TableViewController: UITableViewController {
         
         if segue.identifier == "detail"{
             if let indexPath = tableView.indexPathForSelectedRow{
-                
                 let dvc = segue.destination as! ViewController
-                dvc.title = feedsCoreData[indexPath.row].title
-                dvc.detailFeed.date = self.feedsCoreDataSort[indexPath.row].date
-                dvc.detailFeed.title = self.feedsCoreDataSort[indexPath.row].title
-                dvc.detailFeed.descriptionFeed = self.feedsCoreDataSort[indexPath.row].descriptionFeed
-                dvc.detailFeed.imageNSData = self.feedsCoreDataSort[indexPath.row].imageNSData
+                
+                if feeds.count == 0 {
+                    dvc.detailFeed.caseBool = false
+                    dvc.title = feedsCoreDataSort[indexPath.row].title
+                    dvc.detailFeed.date = self.feedsCoreDataSort[indexPath.row].date
+                    dvc.detailFeed.title = self.feedsCoreDataSort[indexPath.row].title
+                    dvc.detailFeed.descriptionFeed = self.feedsCoreDataSort[indexPath.row].descriptionFeed
+                    dvc.detailFeed.imageNSData = self.feedsCoreDataSort[indexPath.row].imageNSData
+                }
+                else{
+                    dvc.detailFeed.caseBool = true
+                    dvc.title = feeds[indexPath.row].title
+                    dvc.detailFeed.date = self.feeds[indexPath.row].date
+                    dvc.detailFeed.title = self.feeds[indexPath.row].title
+                    dvc.detailFeed.descriptionFeed = self.feeds[indexPath.row].descriptionFeed
+                    dvc.detailFeed.link = self.feeds[indexPath.row].imageUrl
+                }
+                
             }
         }
     }
-}
+    }
 
 // MARK: - XMLParser delegate
 extension TableViewController: XMLParserDelegate{
@@ -340,16 +309,9 @@ extension TableViewController: XMLParserDelegate{
             
             feed.date =  feedPubDate
             
-//            let dateFormatter = DateFormatter()
-//            dateFormatter.dateFormat = "EEE, dd MMM yyyy hh:mm:ss +zzzz" //Your date format
-//            dateFormatter.timeZone = TimeZone(abbreviation: "GMT+0:00") //Current time zone
-//            feed.dateDate = dateFormatter.date(from: feedPubDate) //according to date format your date string
             let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "EEE, dd MMM yyyy hh:mm:ss +zzzz"
-            dateFormatter.locale = Locale.init(identifier: "en_GB")
+            dateFormatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss +zzzz"
             feed.dateDate = dateFormatter.date(from: feedPubDate)
-            
-            
             feed.title = feedTitle
             feed.imageUrl = feedImageUrl
             feed.link = feedLink

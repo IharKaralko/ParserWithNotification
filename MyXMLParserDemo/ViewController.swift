@@ -16,6 +16,8 @@ class DetailFeed {
     var date    :  String?
     var descriptionFeed : String?
     var imageNSData : NSData?
+    var caseBool = false
+    var link    :  String?
    
 }
 
@@ -41,19 +43,37 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
-        
         tableView.estimatedRowHeight = 100
         tableView.rowHeight = UITableViewAutomaticDimension
         
+        tableView.backgroundColor = #colorLiteral(red: 0.5843137503, green: 0.8235294223, blue: 0.4196078479, alpha: 1)
+        tableView.tableFooterView = UIView(frame: CGRect.zero)
+        
+        if !detailFeed.caseBool  {
          let imageFeed = UIImage(data: detailFeed.imageNSData! as Data)
         
         imageViewNews.image = imageFeed
         
-           tableView.backgroundColor = #colorLiteral(red: 0.5843137503, green: 0.8235294223, blue: 0.4196078479, alpha: 1)
-           tableView.tableFooterView = UIView(frame: CGRect.zero)
         
            }
+        else{
+            let urlString = detailFeed.link
+            let imageUrl = URL(string: urlString!)
+            
+            
+           URLSession.shared.downloadTask(with: imageUrl!, completionHandler: { (url, response, error) in                let data = try? Data(contentsOf: imageUrl!)
+                
+                
+       DispatchQueue.main.async(execute: {
+        let imageFeedd = UIImage(data: data! as Data)
+                   self.imageViewNews.image = imageFeedd
+        
+            })
+ 
+            }).resume()
+        }
+        
+    }
 
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1

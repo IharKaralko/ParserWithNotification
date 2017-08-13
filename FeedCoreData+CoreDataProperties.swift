@@ -2,7 +2,7 @@
 //  FeedCoreData+CoreDataProperties.swift
 //  MyXMLParserDemo
 //
-//  Created by Ihar Karalko on 7/19/17.
+//  Created by Ihar Karalko on 8/13/17.
 //  Copyright © 2017 Ihar Karalko. All rights reserved.
 //
 
@@ -16,10 +16,10 @@ extension FeedCoreData {
         return NSFetchRequest<FeedCoreData>(entityName: "FeedCoreData")
     }
 
-    @NSManaged public var dateDate: Date?
-    @NSManaged public var title: String?
     @NSManaged public var date: String?
+    @NSManaged public var dateDate: NSDate?
     @NSManaged public var descriptionFeed: String?
     @NSManaged public var imageNSData: NSData?
+    @NSManaged public var title: String?
 
 }
