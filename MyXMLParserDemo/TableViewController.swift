@@ -63,9 +63,7 @@ class TableViewController: UITableViewController {
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let context = appDelegate.persistentContainer.viewContext
-        
-        let privateMOC = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-        privateMOC.parent = context
+        let backgroudContext = appDelegate.persistentContainer.newBackgroundContext()
         
         let fetchRequest: NSFetchRequest<FeedCoreData> = FeedCoreData.fetchRequest()
         
@@ -78,48 +76,65 @@ class TableViewController: UITableViewController {
         
         for feed in feeds {
             
-            let entity = NSEntityDescription.entity(forEntityName: "FeedCoreData", in: context)
-            let taskObject = NSManagedObject(entity: entity!, insertInto: context) as! FeedCoreData
-            
             
             if feedsCoreData.contains(where: { $0.title  == feed.title && $0.date == feed.date}) {
                 continue
             }
             
-            taskObject.title = feed.title
-            taskObject.date = feed.date
-            taskObject.descriptionFeed = feed.descriptionFeed
-            taskObject.dateDate = feed.dateDate as NSDate?
-            
-            privateMOC.perform {
+            backgroudContext.perform {
+                
+                let taskObject = FeedCoreData(context: backgroudContext)
+                
+                taskObject.title = feed.title
+                taskObject.date = feed.date
+                taskObject.descriptionFeed = feed.descriptionFeed
+                taskObject.dateDate = feed.dateDate as NSDate?
+                
                 let urlString = feed.imageUrl
                 let imageUrl = URL(string: urlString)
                 let data = try? Data(contentsOf: imageUrl!)
-                
-                
                 taskObject.imageNSData = data as NSData?
-                print("Saved! Good Job!")
-                
                 do {
-                    try privateMOC.save()
-                    context.performAndWait {
-                        do {
-                            try context.save()
-                            
-                        } catch {
-                            fatalError("Failure to save context: \(error)")
-                        }
-                    }
+                    try backgroudContext.save()
+                    
                 } catch {
                     fatalError("Failure to save context: \(error)")
                 }
+                
+                // Add Observer
+                let notificationCenter = NotificationCenter.default
+                notificationCenter.addObserver(self, selector: #selector(self.managedObjectContextDidSave),
+                                               name: NSNotification.Name.NSManagedObjectContextDidSave, object: backgroudContext)
+                
+                
             }
-            feedsCoreData.append(taskObject)
+            
         }
         
+    }
+    
+    // MARK: - Notification Handling
+    
+    func managedObjectContextDidSave(_ notification: Notification) {
+        guard let userInfo = notification.userInfo else { return }
+        
+        if let inserts = userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject>, inserts.count > 0 {
+            print("--- Save Contect ---")
+            //  print(inserts)
+            print("+++++++++++++++")
         }
         
-        
+    }
+ 
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // MARK: - Table view data source
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -142,10 +157,10 @@ class TableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! CustomTableViewCell
         
         
-     feeds = [Feed]()
+    feeds = [Feed]()
         if feeds.count == 0 {
             
-            feedsCoreDataSort = feedsCoreData.sorted{ ($0.dateDate as Date?)! > ($1.dateDate as Date?)! }
+            feedsCoreDataSort = feedsCoreData//.sorted{ ($0.dateDate as Date?)! > ($1.dateDate as Date?)! }
             
             let feed = feedsCoreDataSort[indexPath.row]
             
