@@ -101,30 +101,47 @@ class TableViewController: UITableViewController {
                     fatalError("Failure to save context: \(error)")
                 }
                 
-                // Add Observer
-                let notificationCenter = NotificationCenter.default
-                notificationCenter.addObserver(self, selector: #selector(self.managedObjectContextDidSave),
-                                               name: NSNotification.Name.NSManagedObjectContextDidSave, object: backgroudContext)
+//                // Add Observer
+//                let notificationCenter = NotificationCenter.default
+//                notificationCenter.addObserver(self, selector: #selector(self.managedObjectContextDidSave),
+//                                               name: NSNotification.Name.NSManagedObjectContextDidSave, object: backgroudContext)
                 
-                
+                                // Add Observer
+                                let notificationCenter = NotificationCenter.default
+                                notificationCenter.addObserver(self, selector: #selector(self.managedObjectContextDidSave),
+                                                               name: NSNotification.Name.NSManagedObjectContextDidSave, object: backgroudContext)
             }
             
         }
+        
         
     }
     
     // MARK: - Notification Handling
     
-    func managedObjectContextDidSave(_ notification: Notification) {
-        guard let userInfo = notification.userInfo else { return }
-        
-        if let inserts = userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject>, inserts.count > 0 {
-            print("--- Save Contect ---")
-            //  print(inserts)
-            print("+++++++++++++++")
+//    func managedObjectContextDidSave(_ notification: Notification) {
+//        
+    //    guard let userInfo = notification.userInfo else { return }
+//        
+//        if let inserts = userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject>, inserts.count > 0 {
+//            print("--- Save Contect ---")
+//            //  print(inserts)
+//            print("+++++++++++++++")
+//        }
+    
+    //    mergeChangesFromContextDidSaveNotification(_:)
+       
+        func managedObjectContextDidSave(notification: Notification) {
+          
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+           let context = appDelegate.persistentContainer.viewContext
+           
+            DispatchQueue.main.async(execute: { () -> Void in
+              context.mergeChanges(fromContextDidSave: notification)
+               // print("Yess")
+            })
         }
-        
-    }
+    
  
     
     
@@ -157,7 +174,7 @@ class TableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! CustomTableViewCell
         
         
-    feeds = [Feed]()
+  // feeds = [Feed]()
         if feeds.count == 0 {
             
             feedsCoreDataSort = feedsCoreData//.sorted{ ($0.dateDate as Date?)! > ($1.dateDate as Date?)! }
