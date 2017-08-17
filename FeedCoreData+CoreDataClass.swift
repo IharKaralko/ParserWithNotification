@@ -2,7 +2,7 @@
 //  FeedCoreData+CoreDataClass.swift
 //  MyXMLParserDemo
 //
-//  Created by Ihar Karalko on 8/13/17.
+//  Created by Ihar Karalko on 8/16/17.
 //  Copyright © 2017 Ihar Karalko. All rights reserved.
 //
 

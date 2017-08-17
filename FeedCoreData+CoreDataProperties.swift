@@ -2,7 +2,7 @@
 //  FeedCoreData+CoreDataProperties.swift
 //  MyXMLParserDemo
 //
-//  Created by Ihar Karalko on 8/13/17.
+//  Created by Ihar Karalko on 8/16/17.
 //  Copyright © 2017 Ihar Karalko. All rights reserved.
 //
 
@@ -21,5 +21,6 @@ extension FeedCoreData {
     @NSManaged public var descriptionFeed: String?
     @NSManaged public var imageNSData: NSData?
     @NSManaged public var title: String?
+    @NSManaged public var imageUrl: String?
 
 }

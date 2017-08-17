@@ -11,8 +11,8 @@
 		433895751F1F49BA006B3E5A /* CellTwoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 433895741F1F49BA006B3E5A /* CellTwoTableViewCell.swift */; };
 		433895791F1F4E0D006B3E5A /* MyXMLParserDemo.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 433895771F1F4E0D006B3E5A /* MyXMLParserDemo.xcdatamodeld */; };
 		436BDFF51F0E2D0E007920AE /* CustomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436BDFF41F0E2D0E007920AE /* CustomTableViewCell.swift */; };
-		4379531D1F405FAC00E441CF /* FeedCoreData+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4379531B1F405FAC00E441CF /* FeedCoreData+CoreDataClass.swift */; };
-		4379531E1F405FAC00E441CF /* FeedCoreData+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4379531C1F405FAC00E441CF /* FeedCoreData+CoreDataProperties.swift */; };
+		437E442D1F44A3E70073661E /* FeedCoreData+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 437E442B1F44A3E70073661E /* FeedCoreData+CoreDataClass.swift */; };
+		437E442E1F44A3E70073661E /* FeedCoreData+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 437E442C1F44A3E70073661E /* FeedCoreData+CoreDataProperties.swift */; };
 		43FB6F861F0BF653006DFBC5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43FB6F851F0BF653006DFBC5 /* AppDelegate.swift */; };
 		43FB6F881F0BF653006DFBC5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43FB6F871F0BF653006DFBC5 /* ViewController.swift */; };
 		43FB6F8B1F0BF653006DFBC5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 43FB6F891F0BF653006DFBC5 /* Main.storyboard */; };
@@ -26,8 +26,8 @@
 		433895741F1F49BA006B3E5A /* CellTwoTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CellTwoTableViewCell.swift; path = ../CellTwoTableViewCell.swift; sourceTree = "<group>"; };
 		433895781F1F4E0D006B3E5A /* MyXMLParserDemo.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MyXMLParserDemo.xcdatamodel; sourceTree = "<group>"; };
 		436BDFF41F0E2D0E007920AE /* CustomTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTableViewCell.swift; sourceTree = "<group>"; };
-		4379531B1F405FAC00E441CF /* FeedCoreData+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "FeedCoreData+CoreDataClass.swift"; path = "../FeedCoreData+CoreDataClass.swift"; sourceTree = "<group>"; };
-		4379531C1F405FAC00E441CF /* FeedCoreData+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "FeedCoreData+CoreDataProperties.swift"; path = "../FeedCoreData+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		437E442B1F44A3E70073661E /* FeedCoreData+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "FeedCoreData+CoreDataClass.swift"; path = "../FeedCoreData+CoreDataClass.swift"; sourceTree = "<group>"; };
+		437E442C1F44A3E70073661E /* FeedCoreData+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "FeedCoreData+CoreDataProperties.swift"; path = "../FeedCoreData+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		43FB6F821F0BF653006DFBC5 /* MyXMLParserDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyXMLParserDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		43FB6F851F0BF653006DFBC5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		43FB6F871F0BF653006DFBC5 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -61,8 +61,8 @@
 		4338957E1F1F4FF2006B3E5A /* CoreDataModel */ = {
 			isa = PBXGroup;
 			children = (
-				4379531B1F405FAC00E441CF /* FeedCoreData+CoreDataClass.swift */,
-				4379531C1F405FAC00E441CF /* FeedCoreData+CoreDataProperties.swift */,
+				437E442B1F44A3E70073661E /* FeedCoreData+CoreDataClass.swift */,
+				437E442C1F44A3E70073661E /* FeedCoreData+CoreDataProperties.swift */,
 			);
 			name = CoreDataModel;
 			sourceTree = "<group>";
@@ -176,11 +176,11 @@
 				43FB6F881F0BF653006DFBC5 /* ViewController.swift in Sources */,
 				43FB6F981F0BF8BB006DFBC5 /* TableViewController.swift in Sources */,
 				433895751F1F49BA006B3E5A /* CellTwoTableViewCell.swift in Sources */,
-				4379531E1F405FAC00E441CF /* FeedCoreData+CoreDataProperties.swift in Sources */,
 				433895791F1F4E0D006B3E5A /* MyXMLParserDemo.xcdatamodeld in Sources */,
-				4379531D1F405FAC00E441CF /* FeedCoreData+CoreDataClass.swift in Sources */,
+				437E442D1F44A3E70073661E /* FeedCoreData+CoreDataClass.swift in Sources */,
 				436BDFF51F0E2D0E007920AE /* CustomTableViewCell.swift in Sources */,
 				43FB6F861F0BF653006DFBC5 /* AppDelegate.swift in Sources */,
+				437E442E1F44A3E70073661E /* FeedCoreData+CoreDataProperties.swift in Sources */,
 				433895731F1F4991006B3E5A /* CellOneTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

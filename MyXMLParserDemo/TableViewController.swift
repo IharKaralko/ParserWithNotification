@@ -49,73 +49,141 @@ class TableViewController: UITableViewController {
         guard let parser = XMLParser(contentsOf: url) else {return}
         parser.delegate = self
         
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
+
+        
+        
+        let fetchRequestFirst: NSFetchRequest<FeedCoreData> = FeedCoreData.fetchRequest()
+        
+        do {
+            feedsCoreData = try context.fetch(fetchRequestFirst)
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+//        let queue = DispatchQueue.global(qos: .utility)
+//        queue.async{
         let result = parser.parse()
+        
+        
         if result{
             print("Success")
         } else {
             print("Failure")
         }
-        
-        self.saveAllFeedsCoreData()
-    }
+   // }
     
-    func saveAllFeedsCoreData() {
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let context = appDelegate.persistentContainer.viewContext
-        let backgroudContext = appDelegate.persistentContainer.newBackgroundContext()
-        
-        let fetchRequest: NSFetchRequest<FeedCoreData> = FeedCoreData.fetchRequest()
+        let fetchRequestSecond: NSFetchRequest<FeedCoreData> = FeedCoreData.fetchRequest()
         
         do {
-            feedsCoreData = try context.fetch(fetchRequest)
+            feedsCoreData = try context.fetch(fetchRequestSecond)
         } catch {
             print(error.localizedDescription)
         }
         
         
-        for feed in feeds {
+      
+    }
+    
+    
+    
+    
+    func saveAllFeeds() {
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
+        
+        
+        let backgroudContext =  NSManagedObjectContext(concurrencyType:
+            .privateQueueConcurrencyType)
+        
+        backgroudContext.parent = context
+        
+        
+        if feedsCoreData.contains(where: { $0.title  == feedTitle && $0.date == feedPubDate})
+        {
+            return
+        }
+        
+        backgroudContext.perform {
             
             
-            if feedsCoreData.contains(where: { $0.title  == feed.title && $0.date == feed.date}) {
-                continue
-            }
+            let taskObject = FeedCoreData(context: backgroudContext)
             
-            backgroudContext.perform {
+            taskObject.title = self.feedTitle
+            taskObject.date = self.feedPubDate
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss +zzzz"
+            taskObject.dateDate = dateFormatter.date(from: self.feedPubDate) as NSDate?
+            
+            taskObject.descriptionFeed = self.feedDescription
+            taskObject.imageUrl = self.feedImageUrl
+            
+            
+            let urlString = taskObject.imageUrl
+            let imageUrl = URL(string: urlString!)
+            let data = try? Data(contentsOf: imageUrl!)
+            taskObject.imageNSData = data as NSData?
+            
+            do {
+                if backgroudContext.hasChanges{print("Yes")}
                 
-                let taskObject = FeedCoreData(context: backgroudContext)
-                
-                taskObject.title = feed.title
-                taskObject.date = feed.date
-                taskObject.descriptionFeed = feed.descriptionFeed
-                taskObject.dateDate = feed.dateDate as NSDate?
-                
-                let urlString = feed.imageUrl
-                let imageUrl = URL(string: urlString)
-                let data = try? Data(contentsOf: imageUrl!)
-                taskObject.imageNSData = data as NSData?
-                do {
-                    try backgroudContext.save()
-                    
-                } catch {
-                    fatalError("Failure to save context: \(error)")
+                try backgroudContext.save()
+                context.performAndWait {
+                    do {
+                        if context.hasChanges{print("No")}
+                        try  context.save()
+                    } catch {
+                        fatalError("Failure to save context: \(error)")
+                    }
                 }
-                
+            }
+            catch {
+                fatalError("Failure to save context: \(error)")
+            }
+        }
+        
+        
+    
+        
+        //
+//            backgroudContext.perform {
+//
+//                let taskObject = FeedCoreData(context: backgroudContext)
+//                
+//                taskObject.title = feed.title
+//                taskObject.date = feed.date
+//                taskObject.descriptionFeed = feed.descriptionFeed
+//                taskObject.dateDate = feed.dateDate as NSDate?
+//                
+//                let urlString = feed.imageUrl
+//                let imageUrl = URL(string: urlString)
+//                let data = try? Data(contentsOf: imageUrl!)
+//                taskObject.imageNSData = data as NSData?
+//                do {
+//                    try backgroudContext.save()
+//                    
+//                } catch {
+//                    fatalError("Failure to save context: \(error)")
+//                }
+    
 //                // Add Observer
 //                let notificationCenter = NotificationCenter.default
 //                notificationCenter.addObserver(self, selector: #selector(self.managedObjectContextDidSave),
 //                                               name: NSNotification.Name.NSManagedObjectContextDidSave, object: backgroudContext)
                 
-                                // Add Observer
-                                let notificationCenter = NotificationCenter.default
-                                notificationCenter.addObserver(self, selector: #selector(self.managedObjectContextDidSave),
-                                                               name: NSNotification.Name.NSManagedObjectContextDidSave, object: backgroudContext)
-            }
-            
-        }
-        
-        
-    }
+//                                // Add Observer
+//                                let notificationCenter = NotificationCenter.default
+//                                notificationCenter.addObserver(self, selector: #selector(self.managedObjectContextDidSave),
+//                                                               name: NSNotification.Name.NSManagedObjectContextDidSave, object: backgroudContext)
+//            }
+//            
+//        }
+//        
+//        
+  }
     
     // MARK: - Notification Handling
     
@@ -130,17 +198,17 @@ class TableViewController: UITableViewController {
 //        }
     
     //    mergeChangesFromContextDidSaveNotification(_:)
-       
-        func managedObjectContextDidSave(notification: Notification) {
-          
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-           let context = appDelegate.persistentContainer.viewContext
-           
-            DispatchQueue.main.async(execute: { () -> Void in
-              context.mergeChanges(fromContextDidSave: notification)
-               // print("Yess")
-            })
-        }
+//       
+//        func managedObjectContextDidSave(notification: Notification) {
+//          
+//            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+//           let context = appDelegate.persistentContainer.viewContext
+//           
+//            DispatchQueue.main.async(execute: { () -> Void in
+//              context.mergeChanges(fromContextDidSave: notification)
+//               // print("Yess")
+//            })
+//        }
     
  
     
@@ -175,7 +243,7 @@ class TableViewController: UITableViewController {
         
         
   // feeds = [Feed]()
-        if feeds.count == 0 {
+    //    if feeds.count == 0 {
             
             feedsCoreDataSort = feedsCoreData//.sorted{ ($0.dateDate as Date?)! > ($1.dateDate as Date?)! }
             
@@ -212,50 +280,50 @@ class TableViewController: UITableViewController {
            }
             }
             return cell
-        }
-        else {
-            let feed = feeds[indexPath.row]
-
-            cell.titleLabel.text = feed.title
-            cell.pubDateLabel.text = feed.date
-            
-            let urlString = feed.imageUrl
-            let imageUrl = URL(string: urlString)
-            
-            URLSession.shared.downloadTask(with: imageUrl!, completionHandler: { (url, response, error) in
-                   
-            let data = try? Data(contentsOf: imageUrl!)
-            
-            
-                DispatchQueue.main.async(execute: {
-                let imageFeed = UIImage(data: data! as Data)
-            
-                    if let image = self.cache.object(forKey: indexPath.row as AnyObject) as? UIImage {
-                       // print("oooo")
-                      
-                        
-                        cell.thumbnailImageView?.image = image
-            
-                        cell.thumbnailImageView.layer.cornerRadius = 52.5
-                        cell.thumbnailImageView.clipsToBounds = true
-                    } else {
-            
-                        let updateCell = tableView.cellForRow(at: indexPath) as? CustomTableViewCell
-                
-                updateCell?.thumbnailImageView.image = imageFeed
-                
-                updateCell?.thumbnailImageView.layer.cornerRadius = 52.5
-                updateCell?.thumbnailImageView.clipsToBounds = true
-                
-                        
-                             self.cache.setObject(imageFeed!, forKey: indexPath.row as AnyObject)
-                    }
-            })
-           // }
-                 }).resume()
-                    
-            return cell
-        }
+      //  }
+//       // else {
+//            let feed = feeds[indexPath.row]
+//
+//            cell.titleLabel.text = feed.title
+//            cell.pubDateLabel.text = feed.date
+//            
+//            let urlString = feed.imageUrl
+//            let imageUrl = URL(string: urlString)
+//            
+//            URLSession.shared.downloadTask(with: imageUrl!, completionHandler: { (url, response, error) in
+//                   
+//            let data = try? Data(contentsOf: imageUrl!)
+//            
+//            
+//                DispatchQueue.main.async(execute: {
+//                let imageFeed = UIImage(data: data! as Data)
+//            
+//                    if let image = self.cache.object(forKey: indexPath.row as AnyObject) as? UIImage {
+//                       // print("oooo")
+//                      
+//                        
+//                        cell.thumbnailImageView?.image = image
+//            
+//                        cell.thumbnailImageView.layer.cornerRadius = 52.5
+//                        cell.thumbnailImageView.clipsToBounds = true
+//                    } else {
+//            
+//                        let updateCell = tableView.cellForRow(at: indexPath) as? CustomTableViewCell
+//                
+//                updateCell?.thumbnailImageView.image = imageFeed
+//                
+//                updateCell?.thumbnailImageView.layer.cornerRadius = 52.5
+//                updateCell?.thumbnailImageView.clipsToBounds = true
+//                
+//                        
+//                             self.cache.setObject(imageFeed!, forKey: indexPath.row as AnyObject)
+//                    }
+//            })
+//           // }
+//                 }).resume()
+//                    
+//            return cell
+//        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -336,20 +404,23 @@ extension TableViewController: XMLParserDelegate{
     
     func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
         
+        
         if elementName == "item"{
-            let feed = Feed()
+         //   let feed = FeedCoreData()
+           
             
-            feed.date =  feedPubDate
-            
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss +zzzz"
-            feed.dateDate = dateFormatter.date(from: feedPubDate)
-            feed.title = feedTitle
-            feed.imageUrl = feedImageUrl
-            feed.link = feedLink
-            feed.descriptionFeed = feedDescription
-            
-            feeds.append(feed)
+            saveAllFeeds()
+            //            feed.date =  feedPubDate
+//            
+//            let dateFormatter = DateFormatter()
+//            dateFormatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss +zzzz"
+//            feed.dateDate = dateFormatter.date(from: feedPubDate)
+//            feed.title = feedTitle
+//            feed.imageUrl = feedImageUrl
+//            feed.link = feedLink
+//            feed.descriptionFeed = feedDescription
+//            
+//            feeds.append(feed)
             insideItem = false
         }
     }
