@@ -45,7 +45,7 @@ class TableViewController: UITableViewController {
         super.viewDidLoad()
         
         title = "SPORT NEWS"
-
+        
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let context = appDelegate.persistentContainer.viewContext
@@ -58,8 +58,10 @@ class TableViewController: UITableViewController {
             print(error.localizedDescription)
         }
         
-//                let queue = DispatchQueue.global(qos: .utility)
-//                queue.async{
+        
+//        let dgroup: DispatchGroup = DispatchGroup()
+//        
+//        dgroup.enter()
         guard let url = self.url else {return}
         guard let parser = XMLParser(contentsOf: url) else {return}
         parser.delegate = self
@@ -71,18 +73,17 @@ class TableViewController: UITableViewController {
         } else {
             print("Failure")
         }
-          //          DispatchQueue.main.async{
-//        let fetchRequestSecond: NSFetchRequest<FeedCoreData> = FeedCoreData.fetchRequest()
-//        
-//        do {
-//            self.feedsCoreData = try context.fetch(fetchRequestSecond)
-//        } catch {
-//            print(error.localizedDescription)
-//        }
-    }
-      // }
-        //}
-    
+      //  dgroup.leave()
+        
+                   let fetchRequestSecond: NSFetchRequest<FeedCoreData> = FeedCoreData.fetchRequest()
+            
+            do {
+                self.feedsCoreData = try context.fetch(fetchRequestSecond)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+      
     func saveAllFeeds() {
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -100,10 +101,8 @@ class TableViewController: UITableViewController {
             return
         }
         
-        backgroudContext.perform {
-            
-            
-            let taskObject = FeedCoreData(context: backgroudContext)
+       backgroudContext.perform {
+                   let taskObject = FeedCoreData(context: backgroudContext)
             
             taskObject.title = self.feedTitle
             taskObject.date = self.feedPubDate
@@ -122,7 +121,7 @@ class TableViewController: UITableViewController {
                 taskObject.imageNSData = data as NSData?
             }
             else{ return }
-                
+        
             
             do {
                 if backgroudContext.hasChanges{print("Yes")}
@@ -168,7 +167,7 @@ class TableViewController: UITableViewController {
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let context = appDelegate.persistentContainer.viewContext
-        
+    
         
         let fetchRequestSecond: NSFetchRequest<FeedCoreData> = FeedCoreData.fetchRequest()
         
@@ -183,8 +182,8 @@ class TableViewController: UITableViewController {
         cell.titleLabel.text = feed.title
         cell.pubDateLabel.text = feed.date
         
-        let queue = DispatchQueue.global(qos: .utility)
-        queue.async{
+          let queue = DispatchQueue.global(qos: .utility)
+            queue.async{
             let imageFeed = UIImage(data: feed.imageNSData! as Data)
             
             if let image = self.cache.object(forKey: indexPath.row as AnyObject) as? UIImage {
@@ -196,7 +195,7 @@ class TableViewController: UITableViewController {
                 cell.thumbnailImageView.clipsToBounds = true
             } else {
                 
-                DispatchQueue.main.async(execute: {
+               DispatchQueue.main.async(execute: {
                     //проверка видна ли строка
                     let updateCell = tableView.cellForRow(at: indexPath) as? CustomTableViewCell
                     
@@ -207,7 +206,7 @@ class TableViewController: UITableViewController {
                     
                     // кешируем изображение
                     self.cache.setObject(imageFeed!, forKey: indexPath.row as AnyObject)
-                })
+            })
             }
         }
         return cell
@@ -286,6 +285,9 @@ extension TableViewController: XMLParserDelegate{
         
         
         if elementName == "item"{
+            
+            
+            
             
             
             saveAllFeeds()
