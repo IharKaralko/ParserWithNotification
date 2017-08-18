@@ -45,9 +45,7 @@ class TableViewController: UITableViewController {
         super.viewDidLoad()
         
         title = "SPORT NEWS"
-        guard let url = url else {return}
-        guard let parser = XMLParser(contentsOf: url) else {return}
-        parser.delegate = self
+
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let context = appDelegate.persistentContainer.viewContext
@@ -60,26 +58,30 @@ class TableViewController: UITableViewController {
             print(error.localizedDescription)
         }
         
-        //        let queue = DispatchQueue.global(qos: .utility)
-        //        queue.async{
-        let result = parser.parse()
+//                let queue = DispatchQueue.global(qos: .utility)
+//                queue.async{
+        guard let url = self.url else {return}
+        guard let parser = XMLParser(contentsOf: url) else {return}
+        parser.delegate = self
         
+        let result = parser.parse()
         
         if result{
             print("Success")
         } else {
             print("Failure")
         }
-        //            DispatchQueue.main.async{
-        let fetchRequestSecond: NSFetchRequest<FeedCoreData> = FeedCoreData.fetchRequest()
-        
-        do {
-            self.feedsCoreData = try context.fetch(fetchRequestSecond)
-        } catch {
-            print(error.localizedDescription)
-        }
+          //          DispatchQueue.main.async{
+//        let fetchRequestSecond: NSFetchRequest<FeedCoreData> = FeedCoreData.fetchRequest()
+//        
+//        do {
+//            self.feedsCoreData = try context.fetch(fetchRequestSecond)
+//        } catch {
+//            print(error.localizedDescription)
+//        }
     }
-    
+      // }
+        //}
     
     func saveAllFeeds() {
         
@@ -98,7 +100,7 @@ class TableViewController: UITableViewController {
             return
         }
         
-        backgroudContext.performAndWait {
+        backgroudContext.perform {
             
             
             let taskObject = FeedCoreData(context: backgroudContext)
@@ -114,10 +116,13 @@ class TableViewController: UITableViewController {
             taskObject.imageUrl = self.feedImageUrl
             
             
-            let urlString = taskObject.imageUrl
-            let imageUrl = URL(string: urlString!)
-            let data = try? Data(contentsOf: imageUrl!)
-            taskObject.imageNSData = data as NSData?
+            guard let urlString = taskObject.imageUrl else{return}
+            if let imageUrl = URL(string: urlString){
+            let data = try? Data(contentsOf: imageUrl)
+                taskObject.imageNSData = data as NSData?
+            }
+            else{ return }
+                
             
             do {
                 if backgroudContext.hasChanges{print("Yes")}
@@ -125,7 +130,7 @@ class TableViewController: UITableViewController {
                 try backgroudContext.save()
                 context.performAndWait {
                     do {
-                        if context.hasChanges{print("No")}
+                        if context.hasChanges{print("Yes yes")}
                         try  context.save()
                     } catch {
                         fatalError("Failure to save context: \(error)")
@@ -136,6 +141,7 @@ class TableViewController: UITableViewController {
                 fatalError("Failure to save context: \(error)")
             }
         }
+        
     }
     
     
@@ -160,7 +166,17 @@ class TableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! CustomTableViewCell
         
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
         
+        
+        let fetchRequestSecond: NSFetchRequest<FeedCoreData> = FeedCoreData.fetchRequest()
+        
+                do {
+                    self.feedsCoreData = try context.fetch(fetchRequestSecond)
+                } catch {
+                    print(error.localizedDescription)
+                }
         
         let feed = feedsCoreData[indexPath.row]
         
@@ -204,14 +220,15 @@ class TableViewController: UITableViewController {
                 let dvc = segue.destination as! ViewController
                 
                 
-                dvc.detailFeed.caseBool = true
-                dvc.title = feeds[indexPath.row].title
-                dvc.detailFeed.date = self.feeds[indexPath.row].date
-                dvc.detailFeed.title = self.feeds[indexPath.row].title
-                dvc.detailFeed.descriptionFeed = self.feeds[indexPath.row].descriptionFeed
-                dvc.detailFeed.link = self.feeds[indexPath.row].imageUrl
-                
-                
+                dvc.detailFeed.caseBool = false
+                dvc.title = feedsCoreData[indexPath.row].title
+                dvc.detailFeed.date = self.feedsCoreData[indexPath.row].date
+                dvc.detailFeed.title = self.feedsCoreData[indexPath.row].title
+                dvc.detailFeed.descriptionFeed = self.feedsCoreData[indexPath.row].descriptionFeed
+                dvc.detailFeed.imageNSData = self.feedsCoreData[indexPath.row].imageNSData
+            
+            
+            
             }
         }
     }
