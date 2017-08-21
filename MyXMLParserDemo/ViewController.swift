@@ -16,29 +16,22 @@ class DetailFeed {
     var date    :  String?
     var descriptionFeed : String?
     var imageNSData : NSData?
-    var caseBool = false
-    var link    :  String?
-   
 }
 
 
 
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
-
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var imageViewNews: UIImageView!
+    
     var stringURL: String?
-    
     var detailFeed = DetailFeed()
-    //var feed: FeedCoreData = FeedCoreData()
-    
     
     override func viewWillAppear(_ animated: Bool) {
         navigationController?.hidesBarsOnSwipe = false
         navigationController?.setNavigationBarHidden(false, animated: true)
     }
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,30 +42,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         tableView.backgroundColor = #colorLiteral(red: 0.5843137503, green: 0.8235294223, blue: 0.4196078479, alpha: 1)
         tableView.tableFooterView = UIView(frame: CGRect.zero)
         
-        if !detailFeed.caseBool  {
-         let imageFeed = UIImage(data: detailFeed.imageNSData! as Data)
-        
+        let imageFeed = UIImage(data: detailFeed.imageNSData! as Data)
         imageViewNews.image = imageFeed
-        
-        
-           }
-        else{
-            let urlString = detailFeed.link
-            let imageUrl = URL(string: urlString!)
-            
-            
-           URLSession.shared.downloadTask(with: imageUrl!, completionHandler: { (url, response, error) in                let data = try? Data(contentsOf: imageUrl!)
-                
-                
-       DispatchQueue.main.async(execute: {
-        let imageFeedd = UIImage(data: data! as Data)
-                   self.imageViewNews.image = imageFeedd
-        
-            })
- 
-            }).resume()
-        }
-        
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -89,7 +60,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         {
             let cellOne = tableView.dequeueReusableCell(withIdentifier: "cellOne", for: indexPath) as! CellOneTableViewCell
             
-            
             cellOne.titleLabel.text = detailFeed.title
             cellOne.pubDateLabel.text = detailFeed.date
             
@@ -105,7 +75,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             
             return cellTwo
         }
-
     }
 }
 

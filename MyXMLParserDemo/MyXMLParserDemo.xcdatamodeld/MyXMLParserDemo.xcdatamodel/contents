@@ -7,8 +7,13 @@
         <attribute name="imageNSData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
         <attribute name="imageUrl" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="title"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <elements>
-        <element name="FeedCoreData" positionX="-63" positionY="-18" width="128" height="135"/>
+        <element name="FeedCoreData" positionX="-63" positionY="-18" width="128" height="133"/>
     </elements>
 </model>

@@ -52,6 +52,7 @@
 		433895761F1F49E4006B3E5A /* CustomCell */ = {
 			isa = PBXGroup;
 			children = (
+				436BDFF41F0E2D0E007920AE /* CustomTableViewCell.swift */,
 				433895721F1F4991006B3E5A /* CellOneTableViewCell.swift */,
 				433895741F1F49BA006B3E5A /* CellTwoTableViewCell.swift */,
 			);
@@ -63,6 +64,7 @@
 			children = (
 				437E442B1F44A3E70073661E /* FeedCoreData+CoreDataClass.swift */,
 				437E442C1F44A3E70073661E /* FeedCoreData+CoreDataProperties.swift */,
+				433895771F1F4E0D006B3E5A /* MyXMLParserDemo.xcdatamodeld */,
 			);
 			name = CoreDataModel;
 			sourceTree = "<group>";
@@ -91,12 +93,10 @@
 				43FB6F851F0BF653006DFBC5 /* AppDelegate.swift */,
 				43FB6F871F0BF653006DFBC5 /* ViewController.swift */,
 				43FB6F891F0BF653006DFBC5 /* Main.storyboard */,
-				436BDFF41F0E2D0E007920AE /* CustomTableViewCell.swift */,
 				43FB6F971F0BF8BB006DFBC5 /* TableViewController.swift */,
 				43FB6F8C1F0BF653006DFBC5 /* Assets.xcassets */,
 				43FB6F8E1F0BF653006DFBC5 /* LaunchScreen.storyboard */,
 				43FB6F911F0BF653006DFBC5 /* Info.plist */,
-				433895771F1F4E0D006B3E5A /* MyXMLParserDemo.xcdatamodeld */,
 			);
 			path = MyXMLParserDemo;
 			sourceTree = "<group>";
