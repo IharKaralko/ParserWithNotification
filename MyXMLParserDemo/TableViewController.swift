@@ -18,9 +18,9 @@ class Feed {
     var descriptionFeed = String()
 }
 
-class TableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
+class TableViewController: UITableViewController {
     
-    var fetchedResultsController: NSFetchedResultsController<FeedCoreData>?
+    var feedsCoreData = [FeedCoreData]()
     
     var url = URL(string: "https://news.tut.by/rss/sport.rss")
     var feeds = [Feed]()
@@ -48,74 +48,46 @@ class TableViewController: UITableViewController, NSFetchedResultsControllerDele
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let context = appDelegate.persistentContainer.viewContext
+//        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+//        let context = appDelegate.persistentContainer.viewContext
         
         title = "SPORT NEWS"
-        let fetchRequest = FeedCoreData.fetchRequestExecute()
-        
-        let sortDateDate = NSSortDescriptor(key: "dateDate", ascending: false)
-        fetchRequest.sortDescriptors = [sortDateDate]
         
         
         
-        guard let url = self.url else {return}
-        guard let parser = XMLParser(contentsOf: url) else {return}
-        parser.delegate = self
         
-        let result = parser.parse()
+        saveInBackground()
         
-        if result{
-            print("Success")
-        } else {
-            print("Failure")
-        }
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
-        fetchedResultsController?.delegate = self
-        
-        saveInBackground(feeds: feeds)
-        
-        do {
-            try fetchedResultsController?.performFetch()
-        } catch let error as NSError {
-            print("Fetching error: \(error), \(error.userInfo)")
-        }
-    }
+      }
     
     
-    // MARK: - FetchResultController
     
-    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        tableView.beginUpdates()
-    }
-    
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        tableView.endUpdates()
-    }
-    
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        switch type {
-        case .insert:
-            tableView.insertRows(at: [newIndexPath!], with: .automatic)
-        case .delete:
-            tableView.deleteRows(at: [indexPath!], with: .automatic)
-        case .move:
-            tableView.moveRow(at: indexPath!, to: newIndexPath!)
-        case .update:
-              tableView.reloadData()
-        }
-    }
-    
-    func saveInBackground(feeds: [Feed]) {
+    func saveInBackground() {
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let mainContext = appDelegate.persistentContainer.viewContext
         
-        appDelegate.persistentContainer.performBackgroundTask { context in
+        let privateMOC = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        privateMOC.parent = mainContext
+      
+                privateMOC.perform {
+
+            guard let url = self.url else {return}
+                    guard let parser = XMLParser(contentsOf: url) else {return}
+                    parser.delegate = self
             
-            feeds.forEach({ feed in
+                    let result = parser.parse()
+            
+                    if result{
+                        print("Success")
+                    } else {
+                        print("Failure")
+                    }
+            
+            
+            self.feeds.forEach({ feed in
                 
-                let corefeed      = FeedCoreData(context: mainContext)
+                let corefeed      = FeedCoreData(context: privateMOC)
                 corefeed.title    = feed.title
                 corefeed.date     = feed.date
                 corefeed.dateDate = feed.dateDate as NSDate?
@@ -126,8 +98,20 @@ class TableViewController: UITableViewController, NSFetchedResultsControllerDele
                 guard let imageData = try? Data(contentsOf: url) else { return }
                 
                 corefeed.imageNSData = imageData as NSData
-                appDelegate.saveContext()
-            })
+                
+                do {
+                    try privateMOC.save()
+                    mainContext.performAndWait {
+                        do {
+                            try mainContext.save()
+                        } catch {
+                            fatalError("Failure to save context: \(error)")
+                        }
+                    }
+                } catch {
+                    fatalError("Failure to save context: \(error)")
+                }
+             })
         }
     }
     
@@ -135,31 +119,43 @@ class TableViewController: UITableViewController, NSFetchedResultsControllerDele
     // MARK: - Table view data source
     
     override func numberOfSections(in tableView: UITableView) -> Int {
+        // #warning Incomplete implementation, return the number of sections
         return 1
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let sectionInfo = fetchedResultsController?.sections?[section] else {
-            return 0
-        }
-       // print(sectionInfo.numberOfObjects)
-        return sectionInfo.numberOfObjects
+        // #warning Incomplete implementation, return the number of rows
+        return  feedsCoreData.count
+        
     }
-    
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! CustomTableViewCell
-        configure(cell: cell, for: indexPath)
-        return cell
-    }
-    
-    func configure(cell: CustomTableViewCell, for indexPath: IndexPath) {
         
-        if let feed = fetchedResultsController?.object(at: indexPath) {
-            
-            cell.fillCell(title: feed.title!, date: feed.date!, imageUrl: feed.imageUrl!, imageData: feed.imageNSData as Data?)
+        
+        let feed = feedsCoreData[indexPath.row]
+        
+        cell.titleLabel.text = feed.title
+        cell.pubDateLabel.text = feed.date
+        
+        if let data = feed.imageNSData {
+        
+        let imageFeed = UIImage(data: data as Data)
         }
-    }
+            // если объект есть, то подставляем в изображение
+            cell.thumbnailImageView?.image = imageFeed
+            
+            cell.thumbnailImageView.layer.cornerRadius = 52.5
+            cell.thumbnailImageView.clipsToBounds = true
+                   })
+        }
+    
+    
+    
+    
+     
+    
+    
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
