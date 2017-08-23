@@ -35,33 +35,60 @@ class TableViewController: UITableViewController {
     
     var insideItem = false
     
-    
-    
-    
-    
-    
-    
-    
+      
     override func viewWillAppear(_ animated: Bool) {
         navigationController?.hidesBarsOnSwipe = true
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-//        let context = appDelegate.persistentContainer.viewContext
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
         
         title = "SPORT NEWS"
         
+        let fetchRequestFirst: NSFetchRequest<FeedCoreData> = FeedCoreData.fetchRequest()
+        let sortDateDate = NSSortDescriptor(key: "dateDate", ascending: false)
+        fetchRequestFirst.sortDescriptors = [sortDateDate]
         
-        
+        do {
+            feedsCoreData = try context.fetch(fetchRequestFirst)
+        } catch {
+            print(error.localizedDescription)
+        }
         
         saveInBackground()
         
+        // Add Observer
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.addObserver(self, selector: #selector(self.managedObjectContextDidSave),
+                                       name: NSNotification.Name.NSManagedObjectContextDidSave, object: context)
       }
     
+    // MARK: - Notification Handling
     
-    
+    func managedObjectContextDidSave(_ notification: Notification) {
+        guard let userInfo = notification.userInfo else { return }
+        
+        if let inserts = userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject>, inserts.count > 0 {
+            print("--- Save Contect ---")
+            
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let context = appDelegate.persistentContainer.viewContext
+
+            let fetchRequestSecond: NSFetchRequest<FeedCoreData> = FeedCoreData.fetchRequest()
+            
+            let sortDateDate = NSSortDescriptor(key: "dateDate", ascending: false)
+            fetchRequestSecond.sortDescriptors = [sortDateDate]
+                    do {
+                        feedsCoreData = try context.fetch(fetchRequestSecond)
+                    } catch {
+                        print(error.localizedDescription)
+                    }
+            tableView.reloadData()
+       }
+        
+    }
     func saveInBackground() {
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -87,6 +114,13 @@ class TableViewController: UITableViewController {
             
             self.feeds.forEach({ feed in
                 
+                if self.feedsCoreData.contains(where: { $0.title  == feed.title }) {
+                    //print("yes")
+                    return
+                }
+                else {
+                
+                
                 let corefeed      = FeedCoreData(context: privateMOC)
                 corefeed.title    = feed.title
                 corefeed.date     = feed.date
@@ -111,6 +145,7 @@ class TableViewController: UITableViewController {
                 } catch {
                     fatalError("Failure to save context: \(error)")
                 }
+                }
              })
         }
     }
@@ -125,6 +160,7 @@ class TableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
+        print(feedsCoreData.count)
         return  feedsCoreData.count
         
     }
@@ -137,23 +173,20 @@ class TableViewController: UITableViewController {
         
         cell.titleLabel.text = feed.title
         cell.pubDateLabel.text = feed.date
+       
         
-        if let data = feed.imageNSData {
-        
-        let imageFeed = UIImage(data: data as Data)
-        }
+        let imageFeed = UIImage(data: feed.imageNSData! as Data)
+    
+      
             // если объект есть, то подставляем в изображение
             cell.thumbnailImageView?.image = imageFeed
             
             cell.thumbnailImageView.layer.cornerRadius = 52.5
             cell.thumbnailImageView.clipsToBounds = true
-                   })
+    
+        
+        return cell
         }
-    
-    
-    
-    
-     
     
     
     
@@ -162,14 +195,15 @@ class TableViewController: UITableViewController {
         if segue.identifier == "detail"{
             if let indexPath = tableView.indexPathForSelectedRow{
                 
-                let dvc = segue.destination as! ViewController
-                let feed = fetchedResultsController?.object(at: indexPath)
                 
-                dvc.title = feed?.title
-                dvc.detailFeed.date = feed?.date
-                dvc.detailFeed.title = feed?.title
-                dvc.detailFeed.descriptionFeed = feed?.descriptionFeed
-                dvc.detailFeed.imageNSData = feed?.imageNSData
+               let dvc = segue.destination as! ViewController
+              let feed = feedsCoreData[indexPath.row]
+                
+               dvc.title = feed.title
+                dvc.detailFeed.date = feed.date
+                dvc.detailFeed.title = feed.title
+                dvc.detailFeed.descriptionFeed = feed.descriptionFeed
+                dvc.detailFeed.imageNSData = feed.imageNSData
             }
         }
     }

@@ -12,7 +12,7 @@ import CoreData
 
 extension FeedCoreData {
 
-    @nonobjc public class func fetchRequestExecute() -> NSFetchRequest<FeedCoreData> {
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<FeedCoreData> {
         return NSFetchRequest<FeedCoreData>(entityName: "FeedCoreData")
     }
 
