@@ -22,7 +22,7 @@ class TableViewController: UITableViewController {
     
     var feedsCoreData = [FeedCoreData]()
     
-    var url = URL(string: "https://news.tut.by/rss/sport.rss")
+    let url = URL(string: "https://news.tut.by/rss/sport.rss")
     var feeds = [Feed]()
     var eName = String()
     var feedTitle = String()
@@ -31,7 +31,7 @@ class TableViewController: UITableViewController {
     var feedLink = String()
     var feedDescription = String()
     
-    var cache = NSCache<AnyObject, AnyObject>()
+    
     
     var insideItem = false
     
@@ -63,7 +63,7 @@ class TableViewController: UITableViewController {
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self, selector: #selector(self.managedObjectContextDidSave),
                                        name: NSNotification.Name.NSManagedObjectContextDidSave, object: context)
-      }
+    }
     
     // MARK: - Notification Handling
     
@@ -71,22 +71,22 @@ class TableViewController: UITableViewController {
         guard let userInfo = notification.userInfo else { return }
         
         if let inserts = userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject>, inserts.count > 0 {
-            print("--- Save Contect ---")
+            //print("--- Save Contect ---")
             
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let context = appDelegate.persistentContainer.viewContext
-
+            
             let fetchRequestSecond: NSFetchRequest<FeedCoreData> = FeedCoreData.fetchRequest()
             
             let sortDateDate = NSSortDescriptor(key: "dateDate", ascending: false)
             fetchRequestSecond.sortDescriptors = [sortDateDate]
-                    do {
-                        feedsCoreData = try context.fetch(fetchRequestSecond)
-                    } catch {
-                        print(error.localizedDescription)
-                    }
+            do {
+                feedsCoreData = try context.fetch(fetchRequestSecond)
+            } catch {
+                print(error.localizedDescription)
+            }
             tableView.reloadData()
-       }
+        }
         
     }
     func saveInBackground() {
@@ -96,20 +96,20 @@ class TableViewController: UITableViewController {
         
         let privateMOC = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         privateMOC.parent = mainContext
-      
-                privateMOC.perform {
-
+        
+        privateMOC.perform {
+            
             guard let url = self.url else {return}
-                    guard let parser = XMLParser(contentsOf: url) else {return}
-                    parser.delegate = self
+            guard let parser = XMLParser(contentsOf: url) else {return}
+            parser.delegate = self
             
-                    let result = parser.parse()
+            let result = parser.parse()
             
-                    if result{
-                        print("Success")
-                    } else {
-                        print("Failure")
-                    }
+            if result{
+                print("Success")
+            } else {
+                print("Failure")
+            }
             
             
             self.feeds.forEach({ feed in
@@ -119,34 +119,34 @@ class TableViewController: UITableViewController {
                     return
                 }
                 else {
-                
-                
-                let corefeed      = FeedCoreData(context: privateMOC)
-                corefeed.title    = feed.title
-                corefeed.date     = feed.date
-                corefeed.dateDate = feed.dateDate as NSDate?
-                corefeed.descriptionFeed    = feed.descriptionFeed
-                corefeed.imageUrl = feed.imageUrl
-                
-                guard let url = URL(string: feed.imageUrl) else { return }
-                guard let imageData = try? Data(contentsOf: url) else { return }
-                
-                corefeed.imageNSData = imageData as NSData
-                
-                do {
-                    try privateMOC.save()
-                    mainContext.performAndWait {
-                        do {
-                            try mainContext.save()
-                        } catch {
-                            fatalError("Failure to save context: \(error)")
+                    
+                    
+                    let corefeed      = FeedCoreData(context: privateMOC)
+                    corefeed.title    = feed.title
+                    corefeed.date     = feed.date
+                    corefeed.dateDate = feed.dateDate as NSDate?
+                    corefeed.descriptionFeed    = feed.descriptionFeed
+                    corefeed.imageUrl = feed.imageUrl
+                    
+                    guard let url = URL(string: feed.imageUrl) else { return }
+                    guard let imageData = try? Data(contentsOf: url) else { return }
+                    
+                    corefeed.imageNSData = imageData as NSData
+                    
+                    do {
+                        try privateMOC.save()
+                        mainContext.performAndWait {
+                            do {
+                                try mainContext.save()
+                            } catch {
+                                fatalError("Failure to save context: \(error)")
+                            }
                         }
+                    } catch {
+                        fatalError("Failure to save context: \(error)")
                     }
-                } catch {
-                    fatalError("Failure to save context: \(error)")
                 }
-                }
-             })
+            })
         }
     }
     
@@ -159,9 +159,7 @@ class TableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        print(feedsCoreData.count)
-        return  feedsCoreData.count
+             return  feedsCoreData.count
         
     }
     
@@ -173,20 +171,20 @@ class TableViewController: UITableViewController {
         
         cell.titleLabel.text = feed.title
         cell.pubDateLabel.text = feed.date
-       
+        
         
         let imageFeed = UIImage(data: feed.imageNSData! as Data)
-    
-      
-            // если объект есть, то подставляем в изображение
-            cell.thumbnailImageView?.image = imageFeed
-            
-            cell.thumbnailImageView.layer.cornerRadius = 52.5
-            cell.thumbnailImageView.clipsToBounds = true
-    
+        
+        
+        // если объект есть, то подставляем в изображение
+        cell.thumbnailImageView?.image = imageFeed
+        
+        cell.thumbnailImageView.layer.cornerRadius = 52.5
+        cell.thumbnailImageView.clipsToBounds = true
+        
         
         return cell
-        }
+    }
     
     
     
@@ -196,10 +194,10 @@ class TableViewController: UITableViewController {
             if let indexPath = tableView.indexPathForSelectedRow{
                 
                 
-               let dvc = segue.destination as! ViewController
-              let feed = feedsCoreData[indexPath.row]
+                let dvc = segue.destination as! ViewController
+                let feed = feedsCoreData[indexPath.row]
                 
-               dvc.title = feed.title
+                dvc.title = feed.title
                 dvc.detailFeed.date = feed.date
                 dvc.detailFeed.title = feed.title
                 dvc.detailFeed.descriptionFeed = feed.descriptionFeed
@@ -272,7 +270,7 @@ extension TableViewController: XMLParserDelegate{
             feed.descriptionFeed = feedDescription
             feed.imageUrl = feedImageUrl
             
-          
+            
             feeds.append(feed)
             insideItem = false
         }
